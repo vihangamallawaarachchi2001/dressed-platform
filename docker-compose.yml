@@ -38,7 +38,100 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # ← You’ll add design-service, quote-service, etc. here later
+  # Design Service
+  design-service:
+    build:
+      context: ./services/design-service
+    container_name: design-service
+    ports:
+      - "8002:8002"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: dressed_user
+      DB_PASSWORD: dressed_password
+      DB_NAME: dressed_db
+      PORT: "8002"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # order Service
+  order-service:
+    build:
+      context: ./services/order-service
+    container_name: order-service
+    ports:
+      - "8003:8003"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: dressed_user
+      DB_PASSWORD: dressed_password
+      DB_NAME: dressed_db
+      PORT: "8003"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # supplier Service
+  supplier-service:
+    build:
+      context: ./services/supplier-service
+    container_name: supplier-service
+    ports:
+      - "8004:8004"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: dressed_user
+      DB_PASSWORD: dressed_password
+      DB_NAME: dressed_db
+      PORT: "8004"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # payment Service
+  payment-service:
+    build:
+      context: ./services/payment-service
+    container_name: payment-service
+    ports:
+      - "8005:8005"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: dressed_user
+      DB_PASSWORD: dressed_password
+      DB_NAME: dressed_db
+      PORT: "8005"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  gateway:
+    build:
+      context: ./services/gateway-service
+    container_name: gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      auth-service:
+        condition: service_started
+      design-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      supplier-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+    restart: unless-stopped
 
 volumes:
   db_data:
