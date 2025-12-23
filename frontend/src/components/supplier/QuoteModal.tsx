@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/supplier/QuoteModal.tsx
 import { useState } from 'react';
 import { submitQuote } from '../../services/supplierService';
 

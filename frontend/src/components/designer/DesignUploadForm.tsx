@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/designer/DesignUploadForm.tsx
 import { useState } from 'react';
 import { uploadDesign } from '../../services/designService';
 
@@ -28,7 +27,6 @@ const DesignUploadForm = () => {
     setError('');
     try {
       await uploadDesign(formData);
-      // Optionally auto-submit or let user submit manually
       alert('Design uploaded! Go to "My Designs" to submit it.');
     } catch (err: any) {
       setError(err.message);

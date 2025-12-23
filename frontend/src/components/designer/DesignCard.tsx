@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/designer/DesignCard.tsx
 import { submitDesign } from '../../services/designService';
 import { useState } from 'react';
 import type { Design } from '../../types';

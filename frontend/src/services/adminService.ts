@@ -1,19 +1,17 @@
 // src/services/adminService.ts
 const API_BASE = 'http://localhost:8000';
 
-// Since we don't have a dedicated admin service, we'll fetch from existing services
 export const fetchAdminStats = async () => {
   const token = localStorage.getItem('token');
   const headers = { Authorization: `Bearer ${token}` };
 
   try {
-    // Fetch from multiple services
     const [usersRes, designsRes, quotesRes, ordersRes] = await Promise.all([
-      // Total users (designers + suppliers)
-      fetch(`${API_BASE}/auth/users`, { headers }), // ← You'll add this endpoint
-      fetch(`${API_BASE}/designs`, { headers }),    // ← List all designs
-      fetch(`${API_BASE}/quotes`, { headers }),     // ← List all quotes
-      fetch(`${API_BASE}/orders`, { headers }),     // ← List all orders
+
+      fetch(`${API_BASE}/auth/users`, { headers }),
+      fetch(`${API_BASE}/suppliers/designs`, { headers }),
+      fetch(`${API_BASE}/quotes`, { headers }),
+      fetch(`${API_BASE}/orders`, { headers }),
     ]);
 
     const users = usersRes.ok ? await usersRes.json() : [];
@@ -26,7 +24,7 @@ export const fetchAdminStats = async () => {
       totalDesigns: designs.length,
       totalQuotes: quotes.length,
       totalOrders: orders.length,
-      designs: designs.slice(0, 5),   // Recent 5
+      designs: designs.slice(0, 5),   
       quotes: quotes.slice(0, 5),
       orders: orders.slice(0, 5),
     };

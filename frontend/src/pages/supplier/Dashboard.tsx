@@ -1,4 +1,4 @@
-// src/pages/supplier/Dashboard.tsx
+
 import DesignFeed from '../../components/supplier/DesignFeed';
 
 const SupplierDashboard = () => {

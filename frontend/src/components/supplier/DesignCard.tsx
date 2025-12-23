@@ -8,7 +8,7 @@ const DesignCard = ({ design }: { design: Design }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-      {/* Design Image Preview */}
+
       <div className="h-48 bg-gray-100 flex items-center justify-center">
         {design.filePath.endsWith('.pdf') ? (
           <div className="text-center">
@@ -27,7 +27,7 @@ const DesignCard = ({ design }: { design: Design }) => {
         )}
       </div>
 
-      {/* Design Info */}
+
       <div className="p-4">
         <div className="flex justify-between items-start">
           <div>

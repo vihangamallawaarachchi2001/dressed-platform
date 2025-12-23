@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/designer/QuoteItem.tsx
 import type { Quote } from '../../types';
 import { acceptQuote } from '../../services/quoteService';
 import { useState } from 'react';

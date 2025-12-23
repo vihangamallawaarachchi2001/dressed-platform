@@ -12,7 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// proxyWithPrefix creates a reverse proxy that strips the given prefix
 func proxyWithPrefix(targetURL string, prefix string) gin.HandlerFunc {
 	url, _ := url.Parse(targetURL)
 	return func(c *gin.Context) {
@@ -36,7 +35,7 @@ func proxyRaw(targetURL string) gin.HandlerFunc {
 			req.Header.Set("X-Forwarded-Host", req.Host)
 			req.URL.Scheme = url.Scheme
 			req.URL.Host = url.Host
-			req.URL.Path = c.Request.URL.Path // ← Keep full path
+			req.URL.Path = c.Request.URL.Path
 		}
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
@@ -46,7 +45,6 @@ func proxyRaw(targetURL string) gin.HandlerFunc {
 func main() {
 	r := gin.Default()
 
-	// CORS for React frontend
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
@@ -55,30 +53,23 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	// Auth Service → http://auth-service:8001
 	r.Any("/auth", proxyWithPrefix("http://auth-service:8001", "/auth"))
 	r.Any("/auth/*any", proxyWithPrefix("http://auth-service:8001", "/auth"))
 
-	// Design Service → http://design-service:8002
 	r.Any("/designs", proxyRaw("http://design-service:8002"))
 	r.Any("/designs/*any", proxyRaw("http://design-service:8002"))
 
-	// Public Designs (from supplier-service) → http://supplier-service:8004
 	r.GET("/public/designs", proxyWithPrefix("http://supplier-service:8004", "/public/designs"))
 
-	// Quotes & Orders → http://order-service:8003
 	r.Any("/quotes", proxyWithPrefix("http://order-service:8003", "/quotes"))
 	r.Any("/quotes/*any", proxyWithPrefix("http://order-service:8003", "/quotes"))
 
-	// Supplier Profile & Actions → http://supplier-service:8004
 	r.Any("/suppliers", proxyWithPrefix("http://supplier-service:8004", "/suppliers"))
 	r.Any("/suppliers/*any", proxyWithPrefix("http://supplier-service:8004", "/suppliers"))
 
-	// Payment Service → http://payment-service:8005
 	r.Any("/payments", proxyWithPrefix("http://payment-service:8005", "/payments"))
 	r.Any("/payments/*any", proxyWithPrefix("http://payment-service:8005", "/payments"))
 
-	// Static file uploads (served by design-service container)
 	r.GET("/uploads/*filepath", gin.WrapH(http.FileServer(http.Dir("/app/uploads"))))
 
 	log.Println("✅ API Gateway started on :8000")

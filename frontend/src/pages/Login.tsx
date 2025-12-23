@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/pages/auth/Login.tsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/authService';
@@ -19,7 +18,6 @@ const Login = () => {
       localStorage.setItem('token', access_token);
       localStorage.setItem('role', role);
 
-      // Redirect based on role
       if (role === 'designer') {
         navigate('/designer/dashboard');
       } else if (role === 'supplier') {

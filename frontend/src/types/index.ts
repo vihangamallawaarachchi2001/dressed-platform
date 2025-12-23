@@ -4,7 +4,7 @@ export interface Design {
   description: string;
   category: string;
   filePath: string;
-  status: string; // "DRAFT" | "SUBMITTED"
+  status: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -17,6 +17,6 @@ export interface Quote {
   price: number;
   eta_days: number;
   notes: string;
-  status: string; // "QUOTED", "ACCEPTED", etc.
+  status: string;
   createdAt: string;
 }

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/components/designer/QuoteList.tsx
 import { useState, useEffect } from 'react';
 import { getMyQuotes } from '../../services/quoteService';
 import QuoteItem from './QuoteItem';

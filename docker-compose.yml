@@ -1,6 +1,5 @@
 
 services:
-  # Shared PostgreSQL database for all services
   db:
     image: postgres:18
     container_name: dressed-db
@@ -12,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/
+      - ./services/db/init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dressed_user -d dressed_db"]
       interval: 10s
@@ -19,7 +19,7 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # Auth Service
+
   auth-service:
     build:
       context: ./services/auth-service
@@ -38,7 +38,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # Design Service
+
   design-service:
     build:
       context: ./services/design-service
@@ -57,7 +57,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # order Service
+
   order-service:
     build:
       context: ./services/order-service
@@ -76,7 +76,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # supplier Service
+
   supplier-service:
     build:
       context: ./services/supplier-service
@@ -95,7 +95,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # payment Service
+
   payment-service:
     build:
       context: ./services/payment-service
@@ -133,7 +133,7 @@ services:
         condition: service_started
     restart: unless-stopped
 
-  # Frontend (React SPA)
+
   frontend:
     build:
       context: ./frontend
@@ -144,6 +144,7 @@ services:
       gateway:
         condition: service_started
     restart: unless-stopped
+
 
 volumes:
   db_data:
