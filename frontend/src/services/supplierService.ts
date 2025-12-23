@@ -1,7 +1,7 @@
 import type { Design } from "../types";
 
 // src/services/supplierService.ts
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:8000/suppliers';
 
 export interface SubmitQuoteRequest {
   design_id: string;
@@ -18,7 +18,7 @@ export const getPublicDesigns = async (): Promise<Design[]> => {
 
 export const submitQuote = async (data: SubmitQuoteRequest): Promise<void> => {
   const token = localStorage.getItem('token');
-  const response = await fetch(`${API_BASE}/suppliers/quotes`, {
+  const response = await fetch(`${API_BASE}/quotes`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

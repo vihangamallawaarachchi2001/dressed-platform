@@ -1,11 +1,11 @@
 import type { Design } from "../types";
 
 // src/services/designService.ts
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:8000/designs';
 
 export const uploadDesign = async (formData: FormData): Promise<void> => {
   const token = localStorage.getItem('token');
-  const response = await fetch(`${API_BASE}/designs`, {
+  const response = await fetch(`${API_BASE}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: formData,
@@ -15,7 +15,8 @@ export const uploadDesign = async (formData: FormData): Promise<void> => {
 
 export const getMyDesigns = async (): Promise<Design[]> => {
   const token = localStorage.getItem('token');
-  const response = await fetch(`${API_BASE}/designs`, {
+  const response = await fetch(`${API_BASE}`, {
+    method: 'GET',
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!response.ok) throw new Error('Failed to fetch designs');
@@ -24,7 +25,7 @@ export const getMyDesigns = async (): Promise<Design[]> => {
 
 export const submitDesign = async (id: string): Promise<void> => {
   const token = localStorage.getItem('token');
-  const response = await fetch(`${API_BASE}/designs/${id}/submit`, {
+  const response = await fetch(`${API_BASE}/${id}/submit`, {
     method: 'PATCH',
     headers: { Authorization: `Bearer ${token}` },
   });

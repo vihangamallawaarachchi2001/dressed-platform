@@ -1,5 +1,5 @@
 // src/services/adminService.ts
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:8000';
 
 // Since we don't have a dedicated admin service, we'll fetch from existing services
 export const fetchAdminStats = async () => {

@@ -7,7 +7,7 @@ import (
 	"order-service/internal/handlers"
 	"order-service/internal/middleware"
 	"order-service/internal/repositories"
-	"order-service/internal/services"
+	service "order-service/internal/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,13 +22,12 @@ func main() {
 
 	r := gin.Default()
 
-	api := r.Group("/quotes")
-	api.Use(middleware.RequireAuth())
-	api.POST("", middleware.RequireRole("DESIGNER"), h.Request)
-	api.POST("/:id/respond", middleware.RequireRole("SUPPLIER"), h.Submit)
-	api.POST("/:id/accept", middleware.RequireRole("DESIGNER"), h.Accept)
+	r.Use(middleware.RequireAuth())
+	r.POST("", middleware.RequireRole("designer"), h.Request)
+	r.POST("/:id/respond", middleware.RequireRole("supplier"), h.Submit)
+	r.POST("/:id/accept", middleware.RequireRole("designer"), h.Accept)
 	// Add under protected routes
-	api.GET("/my-quotes", middleware.RequireRole("DESIGNER"), h.ListQuotesForDesigner)
+	r.GET("/my-quotes", middleware.RequireRole("designer"), h.ListQuotesForDesigner)
 
 	log.Println("📦 Quote-service running on :8003")
 	r.Run(":8003")

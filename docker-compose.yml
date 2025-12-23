@@ -147,3 +147,4 @@ services:
 
 volumes:
   db_data:
+  uploads:

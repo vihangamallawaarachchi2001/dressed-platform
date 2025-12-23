@@ -60,15 +60,21 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	c.ShouldBindJSON(&req)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
 
-	token, err := h.service.Login(req.Email, req.Password)
+	token, role, err := h.service.Login(req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"access_token": token})
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": token,
+		"role":         role,
+	})
 }
 
 // Me godoc

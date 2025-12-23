@@ -1,12 +1,13 @@
 package main
 
 import (
-	"log"
 	"design-service/internal/database"
 	"design-service/internal/handlers"
 	"design-service/internal/middleware"
 	"design-service/internal/repositories"
-	"design-service/internal/services"
+	service "design-service/internal/services"
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,11 +25,10 @@ func main() {
 	r.Static("/uploads", "./uploads")
 
 	// Protected routes for designers
-	designerGroup := r.Group("/designs")
-	designerGroup.Use(middleware.RequireAuth(), middleware.RequireRole("DESIGNER"))
-	designerGroup.GET("", h.ListDesigns)
-	designerGroup.POST("", h.CreateDesign)
-	designerGroup.PATCH("/:id/submit", h.Submit)
+	r.Use(middleware.RequireAuth(), middleware.RequireRole("designer"))
+	r.GET("/designs", h.ListDesigns)
+	r.POST("/designs", h.CreateDesign)
+	r.PATCH("/designs/:id/submit", h.Submit)
 
 	log.Println("🎨 Design-service running on :8002")
 	r.Run(":8002")

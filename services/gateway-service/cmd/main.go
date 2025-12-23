@@ -5,48 +5,90 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+// proxyWithPrefix creates a reverse proxy that strips the given prefix
+func proxyWithPrefix(targetURL string, prefix string) gin.HandlerFunc {
+	url, _ := url.Parse(targetURL)
+	return func(c *gin.Context) {
+		proxy := httputil.NewSingleHostReverseProxy(url)
+		proxy.Director = func(req *http.Request) {
+			req.Header.Set("X-Forwarded-Host", req.Host)
+			req.Header.Set("X-Forwarded-Proto", "http")
+			req.URL.Scheme = url.Scheme
+			req.URL.Host = url.Host
+			req.URL.Path = strings.TrimPrefix(c.Request.URL.Path, prefix)
+		}
+		proxy.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func proxyRaw(targetURL string) gin.HandlerFunc {
+	url, _ := url.Parse(targetURL)
+	return func(c *gin.Context) {
+		proxy := httputil.NewSingleHostReverseProxy(url)
+		proxy.Director = func(req *http.Request) {
+			req.Header.Set("X-Forwarded-Host", req.Host)
+			req.URL.Scheme = url.Scheme
+			req.URL.Host = url.Host
+			req.URL.Path = c.Request.URL.Path // ← Keep full path
+		}
+		proxy.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
 
 func main() {
 	r := gin.Default()
 
-	// Auth
-	authURL, _ := url.Parse("http://auth-service:8001")
-	r.Any("/auth/*path", proxy(authURL))
+	// CORS for React frontend
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
-	// Design
-	designURL, _ := url.Parse("http://design-service:8002")
-	r.Any("/designs/*path", proxy(designURL))
+	// Auth Service → http://auth-service:8001
+	r.Any("/auth", proxyWithPrefix("http://auth-service:8001", "/auth"))
+	r.Any("/auth/*any", proxyWithPrefix("http://auth-service:8001", "/auth"))
+
+	// Design Service → http://design-service:8002
+	r.Any("/designs", proxyRaw("http://design-service:8002"))
+	r.Any("/designs/*any", proxyRaw("http://design-service:8002"))
+
+	// Public Designs (from supplier-service) → http://supplier-service:8004
+	r.GET("/public/designs", proxyWithPrefix("http://supplier-service:8004", "/public/designs"))
+
+	// Quotes & Orders → http://order-service:8003
+	r.Any("/quotes", proxyWithPrefix("http://order-service:8003", "/quotes"))
+	r.Any("/quotes/*any", proxyWithPrefix("http://order-service:8003", "/quotes"))
+
+	// Supplier Profile & Actions → http://supplier-service:8004
+	r.Any("/suppliers", proxyWithPrefix("http://supplier-service:8004", "/suppliers"))
+	r.Any("/suppliers/*any", proxyWithPrefix("http://supplier-service:8004", "/suppliers"))
+
+	// Payment Service → http://payment-service:8005
+	r.Any("/payments", proxyWithPrefix("http://payment-service:8005", "/payments"))
+	r.Any("/payments/*any", proxyWithPrefix("http://payment-service:8005", "/payments"))
+
+	// Static file uploads (served by design-service container)
 	r.GET("/uploads/*filepath", gin.WrapH(http.FileServer(http.Dir("/app/uploads"))))
 
-	// Quotes / Orders
-	orderURL, _ := url.Parse("http://order-service:8003")
-	r.Any("/quotes/*path", proxy(orderURL))
+	log.Println("✅ API Gateway started on :8000")
+	log.Println("   → Auth:        /auth")
+	log.Println("   → Designs:     /designs")
+	log.Println("   → Public:      /public/designs")
+	log.Println("   → Quotes:      /quotes")
+	log.Println("   → Suppliers:   /suppliers")
+	log.Println("   → Payments:    /payments")
+	log.Println("   → Uploads:     /uploads/...")
 
-	// Suppliers
-	supplierURL, _ := url.Parse("http://supplier-service:8004")
-	r.Any("/suppliers/*path", proxy(supplierURL))
-	r.GET("/designs", proxy(supplierURL)) // public design list
-
-	// Payments
-	paymentURL, _ := url.Parse("http://payment-service:8005")
-	r.Any("/payments/*path", proxy(paymentURL))
-
-	log.Println("🚀 API Gateway running on :8000")
 	r.Run(":8000")
-}
-
-func proxy(target *url.URL) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		proxy := httputil.NewSingleHostReverseProxy(target)
-		proxy.Director = func(req *http.Request) {
-			req.Host = target.Host
-			req.URL.Scheme = target.Scheme
-			req.URL.Host = target.Host
-			req.URL.Path = c.Param("path")
-		}
-		proxy.ServeHTTP(c.Writer, c.Request)
-	}
 }

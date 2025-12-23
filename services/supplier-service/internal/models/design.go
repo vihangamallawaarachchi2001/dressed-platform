@@ -1,11 +1,11 @@
 package models
 
 type Design struct {
-	ID          string `gorm:"primaryKey"`
-	DesignerID  string `gorm:"not null"`
-	Title       string `gorm:"not null"`
-	Description string
-	Category    string `gorm:"not null"`
-	FilePath    string `gorm:"not null"`
-	Status      string `gorm:"not null"`
+	ID          string    `gorm:"primaryKey" json:"id"`
+	DesignerID  string    `gorm:"not null" json:"designerId"`
+	Title       string    `gorm:"not null" json:"title"`
+	Description string    `json:"description"`
+	Category    string    `gorm:"not null" json:"category"`
+	FilePath    string    `gorm:"not null" json:"filePath"`
+	Status      string    `gorm:"not null" json:"status"`
 }

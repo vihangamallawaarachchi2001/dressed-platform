@@ -49,14 +49,23 @@ func (s *AuthService) Register(email, password, role string) error {
 	return s.userRepo.Create(user)
 }
 
-// Login authenticates a user and issues tokens.
-func (s *AuthService) Login(email, password string) (string, error) {
+// Login authenticates a user and returns auth tokens and user role.
+func (s *AuthService) Login(email, password string) (token string, role string, err error) {
 	user, err := s.userRepo.FindByEmail(email)
-	if err != nil || !utils.ComparePassword(password, user.Password) {
-		return "", errors.New("invalid credentials")
+	if err != nil {
+		return "", "", errors.New("invalid credentials")
 	}
 
-	return utils.GenerateAccessToken(user.ID, user.Role)
+	if !utils.ComparePassword(password, user.Password) {
+		return "", "", errors.New("invalid credentials")
+	}
+
+	token, err = utils.GenerateAccessToken(user.ID, user.Role)
+	if err != nil {
+		return "", "", err
+	}
+
+	return token, user.Role, nil
 }
 
 // GetCurrentUser returns user profile for /me endpoint.

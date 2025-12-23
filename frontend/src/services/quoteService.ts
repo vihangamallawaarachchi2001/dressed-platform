@@ -1,7 +1,7 @@
 import type { Quote } from "../types";
 
 // src/services/quoteService.ts
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:8000';
 
 export const getMyQuotes = async (): Promise<Quote[]> => {
   const token = localStorage.getItem('token');

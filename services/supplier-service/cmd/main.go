@@ -33,16 +33,15 @@ func main() {
 	r.GET("/designs", handler.ListPublicDesigns)
 
 	// Protected: supplier actions
-	supplierGroup := r.Group("/supplier")
-	supplierGroup.Use(middleware.RequireAuth(), middleware.RequireRole("SUPPLIER"))
+	r.Use(middleware.RequireAuth(), middleware.RequireRole("supplier"))
 
-	supplierGroup.POST("/register", handler.Register)
-	supplierGroup.POST("/activate", handler.Activate)
-	supplierGroup.PATCH("/availability", handler.UpdateAvailability)
-	supplierGroup.GET("/profile", handler.Profile)
+	r.POST("/register", handler.Register)
+	r.POST("/activate", handler.Activate)
+	r.PATCH("/availability", handler.UpdateAvailability)
+	r.GET("/profile", handler.Profile)
 
 	// Quote submission
-	supplierGroup.POST("/quotes", handler.SubmitQuote)
+	r.POST("/quotes", handler.SubmitQuote)
 
 	log.Println("🏭 Supplier-service running on :8004")
 	r.Run(":8004")
