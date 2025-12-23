@@ -1,0 +1,44 @@
+
+services:
+  # Shared PostgreSQL database for all services
+  db:
+    image: postgres:18
+    container_name: dressed-db
+    environment:
+      POSTGRES_USER: dressed_user
+      POSTGRES_PASSWORD: dressed_password
+      POSTGRES_DB: dressed_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dressed_user -d dressed_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./services/auth-service
+    container_name: auth-service
+    ports:
+      - "8001:8001"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: dressed_user
+      DB_PASSWORD: dressed_password
+      DB_NAME: dressed_db
+      PORT: "8001"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ← You’ll add design-service, quote-service, etc. here later
+
+volumes:
+  db_data:
